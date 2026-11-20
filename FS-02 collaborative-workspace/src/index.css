@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #1e293b;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --accent: #eef2ff;
+  --accent-foreground: #4338ca;
+  --canvas-bg: #f8fafc;
+  --canvas-dot: #cbd5e1;
+}
+
+.dark {
+  --background: #090d16;
+  --foreground: #f8fafc;
+  --card: #0f172a;
+  --card-foreground: #f8fafc;
+  --border: #1e293b;
+  --input: #1e293b;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --muted: #0b1120;
+  --muted-foreground: #94a3b8;
+  --accent: #312e81;
+  --accent-foreground: #e0e7ff;
+  --canvas-bg: #090d16;
+  --canvas-dot: #1e293b;
+}
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  color: var(--foreground);
+  background-color: var(--background);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.canvas-grid {
+  background-color: var(--canvas-bg);
+  background-image: radial-gradient(var(--canvas-dot) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+.cursor-presence {
+  transition: transform 0.08s ease-out;
+  will-change: transform;
+  pointer-events: none;
+}
+
+[contenteditable="true"]:empty:before {
+  content: attr(placeholder);
+  color: #94a3b8;
+  pointer-events: none;
+  display: block;
+}
+
+.sticky-note {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.sticky-note:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}

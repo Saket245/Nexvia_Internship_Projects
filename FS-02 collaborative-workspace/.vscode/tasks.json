@@ -1,0 +1,47 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Collaborative Workspace (All)",
+      "type": "npm",
+      "script": "dev",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "custom",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": ".*Ready in.*|.*API Server running.*"
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Start Express API & WebSockets",
+      "type": "npm",
+      "script": "dev:server",
+      "isBackground": true
+    },
+    {
+      "label": "Start Docker (Postgres + Redis)",
+      "type": "npm",
+      "script": "db:up"
+    },
+    {
+      "label": "Database-First Init (Run SQL DDL)",
+      "type": "npm",
+      "script": "db:init"
+    },
+    {
+      "label": "Prisma Introspect (DB Pull)",
+      "type": "npm",
+      "script": "db:pull"
+    }
+  ]
+}

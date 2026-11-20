@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Workspace {
+  id        String            @id @default(uuid())
+  name      String
+  slug      String            @unique
+  icon      String?           @default("🚀")
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @default(now()) @updatedAt @map("updated_at")
+  members   WorkspaceMember[]
+  documents Document[]
+  canvases  Canvas[]
+  activities Activity[]
+
+  @@map("workspaces")
+}
+
+model User {
+  id          String            @id @default(uuid())
+  name        String
+  email       String            @unique
+  avatar      String?
+  color       String            @default("#6366f1")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @default(now()) @updatedAt @map("updated_at")
+  memberships WorkspaceMember[]
+  documents   Document[]
+  canvases    Canvas[]
+  comments    Comment[]
+  activities  Activity[]
+
+  @@map("users")
+}
+
+model WorkspaceMember {
+  id          String    @id @default(uuid())
+  workspaceId String    @map("workspace_id")
+  userId      String    @map("user_id")
+  role        String    @default("editor")
+  joinedAt    DateTime  @default(now()) @map("joined_at")
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId], map: "uq_workspace_member")
+  @@map("workspace_members")
+}
+
+model Document {
+  id          String             @id @default(uuid())
+  workspaceId String             @map("workspace_id")
+  title       String             @default("Untitled Document")
+  icon        String?            @default("📄")
+  coverImage  String?            @map("cover_image")
+  content     String?
+  isPublished Boolean?           @default(false) @map("is_published")
+  createdBy   String?            @map("created_by")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @default(now()) @updatedAt @map("updated_at")
+  workspace   Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  author      User?              @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  blocks      DocumentBlock[]
+  snapshots   DocumentSnapshot[]
+
+  @@index([workspaceId], map: "idx_documents_workspace")
+  @@map("documents")
+}
+
+model DocumentBlock {
+  id         String   @id @default(uuid())
+  documentId String   @map("document_id")
+  type       String   @default("paragraph")
+  content    String   @default("")
+  orderIndex Int      @default(0) @map("order_index")
+  properties Json?    @default("{}")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId, orderIndex], map: "idx_document_blocks_doc")
+  @@map("document_blocks")
+}
+
+model Canvas {
+  id          String          @id @default(uuid())
+  workspaceId String          @map("workspace_id")
+  title       String          @default("Untitled Canvas")
+  icon        String?         @default("🎨")
+  background  String?         @default("#f8fafc")
+  zoom        Float?          @default(1.0)
+  panX        Float?          @default(0.0) @map("pan_x")
+  panY        Float?          @default(0.0) @map("pan_y")
+  createdBy   String?         @map("created_by")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @default(now()) @updatedAt @map("updated_at")
+  workspace   Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  author      User?           @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  elements    CanvasElement[]
+
+  @@index([workspaceId], map: "idx_canvases_workspace")
+  @@map("canvases")
+}
+
+model CanvasElement {
+  id          String   @id @default(uuid())
+  canvasId    String   @map("canvas_id")
+  type        String
+  x           Float    @default(0)
+  y           Float    @default(0)
+  width       Float    @default(200)
+  height      Float    @default(160)
+  content     String?  @default("")
+  color       String?  @default("#fef08a")
+  strokeColor String?  @default("#cbd5e1") @map("stroke_color")
+  strokeWidth Float?   @default(2) @map("stroke_width")
+  zIndex      Int?     @default(1) @map("z_index")
+  properties  Json?    @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  canvas      Canvas   @relation(fields: [canvasId], references: [id], onDelete: Cascade)
+
+  @@index([canvasId], map: "idx_canvas_elements_canvas")
+  @@map("canvas_elements")
+}
+
+model Comment {
+  id         String   @id @default(uuid())
+  targetType String   @map("target_type")
+  targetId   String   @map("target_id")
+  authorId   String?  @map("author_id")
+  content    String
+  createdAt  DateTime @default(now()) @map("created_at")
+  author     User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([targetType, targetId], map: "idx_comments_target")
+  @@map("comments")
+}
+
+model DocumentSnapshot {
+  id         String   @id @default(uuid())
+  documentId String   @map("document_id")
+  title      String
+  content    String
+  createdBy  String?  @map("created_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@map("document_snapshots")
+}
+
+model Activity {
+  id          String    @id @default(uuid())
+  workspaceId String    @map("workspace_id")
+  userId      String?   @map("user_id")
+  action      String
+  entityType  String    @map("entity_type")
+  entityId    String    @map("entity_id")
+  entityTitle String    @map("entity_title")
+  details     String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, createdAt(sort: Desc)], map: "idx_activities_workspace")
+  @@map("activities")
+}
